@@ -39,8 +39,8 @@ Dealing with IFC files can be tedious — Honey aims to change that. It’s a fu
 ### Installation
 1. Clone the repository:
    ```sh
-   git clone https://github.com/IliaShkola/honey.git
-   cd honey
+   git clone <repository-url>
+   cd Ifc_Analyzer
    ```
 2. Install dependencies:
    ```sh
@@ -74,7 +74,7 @@ To do this, you need to add the folder containing your IFC files to the system P
 Contributions are welcome! Please open issues or submit pull requests for improvements and bug fixes.
 
 ## License
-This project is licensed under the GPL-3.0 License.
+This project is licensed under the MIT License.
 
 ## Author
 
