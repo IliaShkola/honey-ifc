@@ -74,7 +74,7 @@ To do this, you need to add the folder containing your IFC files to the system P
 Contributions are welcome! Please open issues or submit pull requests for improvements and bug fixes.
 
 ## License
-This project is licensed under the MIT License.
+This project is licensed under the GPL-3.0 License.
 
 ## Author
 
