@@ -1,56 +1,82 @@
-# Honeycomb (Ifc Data Extractor)
+# Honey
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/90647bf4-276a-4488-8e53-3d561a665910" width="30%" alt="Description of your image">
+   <img src="https://github.com/user-attachments/assets/f2e4346e-a6dc-4df4-916f-798e7e2c04ed" width="20%" alt="Bee">
 </p>
 
-This Python Textual app allows users to export data in XLS from IFC model from selected IfcCategory and Property set (Pset). Work in CLI and looks cool.
-
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/01f2ebc0-4aa5-48dc-8595-bada0a97c97a" width="45%" />
-  <img src="https://github.com/user-attachments/assets/6b9189d0-a679-4350-bda8-659ae898dd1f" width="45%" />
+   <img src="https://github.com/user-attachments/assets/0dc9337c-c8e8-4bf6-b087-770aeb936b36" width="30%" alt="scr1">
+   <img src="https://github.com/user-attachments/assets/1b0cf5f9-44d4-4e9d-b0e8-05a5a06eaaed" width="30%" alt="scr2">
+   <img src="https://github.com/user-attachments/assets/24ae73a8-5c82-43c5-bd81-c26274ab4caf" width="30%" alt="scr3">
 </p>
 
-Introduction
----
-Introduction of this app
+**Honey** is a lightweight desktop application designed for analyzing and exporting data from IFC (Industry Foundation Classes) files. It offers a faster, easier, and more visually appealing way to explore and interact with the data hidden inside complex IFC models.
 
-Features
----
-* Extracting selected IfcCategory Pset infro in xlsx
-* Supporting IFC2x3, IFC4.0
-* Nvim navigation style
+Whether you're an engineer, architect, or just a curious mind, Honey makes working with IFC files less painful — and a lot more fun.
 
-Build With
----
-* Python
-* Textual
-* IfcOpenShell
-* XLWT
+## Why Honey?
 
-Installation and Setup
----
-Follow these steps to install the necessary libraries and set up the tool:
+Dealing with IFC files can be tedious — Honey aims to change that. It’s a fun side project built to bring a little joy (and a lot of usability) to the otherwise dry world of BIM data.
 
-1. Upgrade pip
-```
-python -m pip install --upgrade pip
-```
-2. Install the required libraries:
+## Features
 
-```
-pip install -r .\requirements.txt
-```
+- Intuitive and fast browsing of IFC data  
+- Export functionality for structured data  
+- Stylish and user-friendly interface  
+- Designed to make BIM work feel less like work
 
-3. Create an executable file using PyInstaller:
-```
-pyinstaller.exe .\app.spec
-```
-To use the executable from any folder in the terminal, add the folder containing the executable to your PATH in the Windows settings.
+## Tech Stack
 
-Usage
----
+- Python  
+- Textual (TUI Framework)  
+- IfcOpenShell
+
+## Getting Started
+
+### Prerequisites
+- Python 3.11 or higher
+- Recommended: Create and activate a virtual environment
+
+### Installation
+1. Clone the repository:
+   ```sh
+   git clone <repository-url>
+   cd Ifc_Analyzer
+   ```
+2. Install dependencies:
+   ```sh
+   pip install -r requirements.txt
+   ```
+   
+3. Create an executable:
+   If you want to create an executable for the application, you can use PyInstaller:
+   ```sh
+   pyinstaller app.spec
+   ```
+   This will generate a standalone executable in the `dist/` directory.
+
+## Running the Application
+Run the Honey executable from the folder with IFC files to analyze.
+
+### Running the application from the folder context menu
+You can run the application directly from the folder containing your IFC files. This allows you to easily access and analyze your IFC data without needing to specify paths.
+To do this, you need to add the folder containing your IFC files to the system PATH. This can be done by modifying the environment variables on your operating system.
 
 
-License
----
-[Specify the license here, e.g., MIT, GPL, etc.]
+## Project Structure
+- `app.py` - Main application entry point
+- `config_manager.py` - Configuration and settings management
+- `honeyThemes.py` - Theme definitions
+- `*_ifc*.py` - Modules for handling IFC data
+- `static/` - Static assets (icons, etc.)
+- `styles/` - Theme and style files
+
+## Contributing
+Contributions are welcome! Please open issues or submit pull requests for improvements and bug fixes.
+
+## License
+This project is licensed under the MIT License.
+
+## Author
+
+Made with ❤️ by [Ilia Shkola]
+
