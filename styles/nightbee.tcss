@@ -121,7 +121,7 @@ ParamsWidget {
 
 /* BrowserWidget focus styling */
 BrowserWidget:focus-within, CategoryWidget:focus-within, PsetWidget:focus-within, ParamsWidget:focus-within {
-    border: $border-style $focus-border-color;
+    border: $focus-border-style $focus-border-color;
     border-title-color: $focus-border-title-color;
 }
 
@@ -237,7 +237,7 @@ InfoModal {
     width: 90;
     height: 30;
     border: $border-style $top-row-border-color;
-    background: $surface 70%;
+    background: $background-color;
     overflow-y: auto;
     scrollbar-color: $datatable-scrollbar-color;
     scrollbar-color-hover: $datatable-scrollbar-hover-color;
@@ -286,11 +286,10 @@ ThemeSelectorModal {
 
 #theme-box{
     width: 40;
-    height: 20;
+    height: 17;
     border: $border-style $top-row-border-color;
+    background: $background-color;
 }
-
-
 
 #theme-title {
     content-align-horizontal: center;
@@ -303,6 +302,6 @@ ThemeSelectorModal {
     height: auto;
     padding: 1;
     color: $top-row-status-color;
-    background: rgba(0,0,0,0.5);
-    border: none $top-row-border-color;
+    background: $background-color 0%;
+    border: none;
 }

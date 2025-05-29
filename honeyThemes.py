@@ -140,7 +140,7 @@ choosenbee = Theme(
         "footer-back-color": "#00FF00",
         "footer-text-color": "#000000",
         "border-style": "solid",
-        "focus-border-style": "heavy",
+        "focus-border-style": "double",
         "warning-text-color": "#00FF00",
     }
 )
@@ -330,56 +330,56 @@ daybee = Theme(
     dark=False,
 
     variables={
-        "background-color": "#f5f7fa",
+        "background-color": "#fbf1c7",
 
         # Top Row
-        "top-row-border-color": "#ffbf00",
-        "top-row-border-title-color": "#ffbf00",
-        "top-row-text-color": "#1e2022",
-        "top-row-appname-color": "#ffbf00",
-        "top-row-status-color": "#4c8fe0",
-        "top-row-sytem-color": "#4c8fe0",
+        "top-row-border-color": "#3c3836",
+        "top-row-border-title-color": "#3c3836",
+        "top-row-text-color": "#3c3836",
+        "top-row-appname-color": "#3c3836",
+        "top-row-status-color": "#3c3836",
+        "top-row-sytem-color": "#3c3836",
 
         # FileBrowser
-        "filebrowser-border-color": "#4c8fe0",
-        "filebrowser-border-title-color": "#4c8fe0",
-        "filebrowser-text-color": "#1e2022",
+        "filebrowser-border-color": "#d5c4a1",
+        "filebrowser-border-title-color": "#d5c4a1",
+        "filebrowser-text-color": "#3c3836",
 
         # IfcInfo
-        "ifcinfo-border-color": "#ffbf00",
-        "ifcinfo-border-title-color": "#ffbf00",
-        "ifcinfo-text-color": "#1e2022",
+        "ifcinfo-border-color": "#3c3836",
+        "ifcinfo-border-title-color": "#3c3836",
+        "ifcinfo-text-color": "#3c3836",
 
         # Category / Pset
-        "catpset-border-color": "#4c8fe0",
-        "catpset-border-title-color": "#4c8fe0",
-        "catpset-text-color": "#1e2022",
+        "catpset-border-color": "#d5c4a1",
+        "catpset-border-title-color": "#d5c4a1",
+        "catpset-text-color": "#3c3836",
 
         # Params
-        "pars-border-color": "#4c8fe0",
-        "pars-border-title-color": "#4c8fe0",
+        "pars-border-color": "#d5c4a1",
+        "pars-border-title-color": "#d5c4a1",
 
         # Focus
-        "focus-border-color": "#ff8c00",
-        "focus-border-title-color": "#ff8c00",
+        "focus-border-color": "#9d0025",
+        "focus-border-title-color": "#9d0025",
 
         # Status
-        "status-border-color": "#ffbf00",
-        "status-text-color": "#1e2022",
-        "status-border-title-color": "#ffbf00",
+        "status-border-color": "#3c3836",
+        "status-text-color": "#3c3836",
+        "status-border-title-color": "#3c3836",
 
         # DataTable
-        "datatable-text-color": "#1e2022",
+        "datatable-text-color": "#3c3836",
         "datatable-header-back-color": "#e3e7ed",
         "datatable-header-text-color": "#1e2022",
-        "datatable-cursor-back-color": "#4c8fe0",
-        "datatable-cursor-text-color": "#f5f7fa",
-        "datatable-scrollbar-color": "#4c8fe0",
+        "datatable-cursor-back-color": "#d5c4a1",
+        "datatable-cursor-text-color": "#3c3836",
+        "datatable-scrollbar-color": "#3c3836",
         "datatable-scrollbar-hover-color": "#ffbf00",
         "datatable-scrollbar-active-color": "#ffbf00",
-        "datatable-scrollbar-back-color": "#e3e7ed",
-        "datatable-scrollbar-back-hover-color": "#e3e7ed",
-        "datatable-scrollbar-back-active-color": "#e3e7ed",
+        "datatable-scrollbar-back-color": "#d5c4a1",
+        "datatable-scrollbar-back-hover-color": "#d5c4a1",
+        "datatable-scrollbar-back-active-color": "#d5c4a1",
 
         # Log
         "bottom-log-back-color": "#e3e7ed",
@@ -387,15 +387,15 @@ daybee = Theme(
         "bottom-log-text-color": "#1e2022",
 
         # Footer
-        "footer-back-color": "#4c8fe0",
-        "footer-text-color": "#f5f7fa",
+        "footer-back-color": "#3c3836",
+        "footer-text-color": "#fbf1c7",
 
         # Borders
         "border-style": "round",
         "focus-border-style": "double",
 
         # Warning text
-        "warning-text-color": "#ffa94d",
+        "warning-text-color": "#3c3836",
     },
 )
 

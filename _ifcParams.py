@@ -1,18 +1,84 @@
-from textual.widgets import DataTable, Label
-from textual.widget import Widget
-from textual.app import ComposeResult
-from _logbox import LogBox
-from openpyxl import Workbook
-from openpyxl.worksheet.table import Table, TableStyleInfo
-from _statusBar import StatusWidget
-from textual.binding import Binding
 import os
 import asyncio
 import time
+from typing import List, Tuple, Optional
+
+from textual.widgets import DataTable, Label
+from textual.widget import Widget
+from textual.app import ComposeResult
+from textual.binding import Binding
+from openpyxl import Workbook
+from openpyxl.worksheet.table import Table, TableStyleInfo
 import ifcopenshell
+
+from _logbox import LogBox
+from _statusBar import StatusWidget
+
+
+class IFCDataProcessor:
+    """Helper class for processing IFC data"""
+
+    @staticmethod
+    def extract_parameters(ifc_file, category: str, pset: str) -> Tuple[List[str], List[List]]:
+        """Extracts parameters from an IFC file with a full analysis of all unique parameters"""
+        try:
+            elements = ifc_file.by_type(category)
+
+            if not elements:
+                return [], []
+
+            # Step 1: Collect all unique parameters from all elements
+            all_param_names = set()
+            elements_with_psets = []
+
+            for element in elements:
+                element_pset = ifcopenshell.util.element.get_pset(element, pset)
+                if element_pset:
+                    # Add all found parameters to the general set
+                    all_param_names.update(element_pset.keys())
+                    elements_with_psets.append((element, element_pset))
+                else:
+                    # Even if pset is not found, add the element with an empty pset
+                    elements_with_psets.append((element, {}))
+
+            if not all_param_names:
+                return [], []
+
+            # Convert to a sorted list for stable column order
+            param_names = sorted(list(all_param_names))
+            rows = []
+
+            # Step 2: Fill in data for all elements with all found parameters
+            for index, (element, element_pset) in enumerate(elements_with_psets, start=1):
+                element_name = element.Name or "Unnamed"
+
+                # Get additional information about the element
+                ifc_category = element.is_a()  # Type of IFC element
+                predefined_type = getattr(element, 'PredefinedType', None) or "Empty"
+                element_guid = getattr(element, 'GlobalId', None) or "Empty"
+
+                # Form the row: No, IfcCategory, PredefinedType, IfcElementName, PsetName, ...parameters..., GUID
+                row_data = [index, ifc_category, predefined_type, element_name, pset]
+
+                # For each unique parameter, check its presence in the current element
+                for param in param_names:
+                    value = element_pset.get(param) if element_pset else None
+                    formatted_value = "Empty" if value in (None, "") else str(value)
+                    row_data.append(formatted_value)
+
+                # Add GUID at the end
+                row_data.append(element_guid)
+                rows.append(row_data)
+
+            return param_names, rows
+
+        except Exception as e:
+            raise Exception(f"Error extracting parameters: {str(e)}")
 
 
 class ParamsWidget(Widget):
+    """Optimized widget for displaying IFC parameters while preserving the interface"""
+
     BINDINGS = [
         Binding("j", "move_down", "Move Down"),
         Binding("k", "move_up", "Move Up"),
@@ -32,15 +98,12 @@ class ParamsWidget(Widget):
 
     def on_mount(self) -> None:
         self.table.cursor_type = "row"
-
-        # Enable keyboard navigation
         self.table.styles.scrollbar_gutter = "stable"
         self.table.styles.overflow_y = "auto"
-
         self.update_view()
 
     def update_view(self) -> None:
-        """Update visibility of the DataTable and Label based on the presence of a category and Pset."""
+        """Updates the visibility of DataTable and Label (original interface preserved)"""
         if self.category and self.pset:
             self.message_label.display = False
             self.table.display = True
@@ -48,17 +111,20 @@ class ParamsWidget(Widget):
             self.message_label.display = True
             self.table.display = False
 
-    def action_move_down(self) -> None:
+    def _move_cursor_safely(self, direction: int) -> None:
+        """Safe cursor movement"""
         if self.table.row_count > 0:
             current_row = self.table.cursor_row
-            next_row = (current_row + 1) % self.table.row_count
-            self.table.move_cursor(row=next_row)
+            new_row = (current_row + direction) % self.table.row_count
+            self.table.move_cursor(row=new_row)
+
+    def action_move_down(self) -> None:
+        """Move cursor down (optimized)"""
+        self._move_cursor_safely(1)
 
     def action_move_up(self) -> None:
-        if self.table.row_count > 0:
-            current_row = self.table.cursor_row
-            prev_row = (current_row - 1) % self.table.row_count
-            self.table.move_cursor(row=prev_row)
+        """Move cursor up (optimized)"""
+        self._move_cursor_safely(-1)
 
     def on_focus(self) -> None:
         self.add_class("focus")
@@ -68,136 +134,134 @@ class ParamsWidget(Widget):
         self.remove_class("focus")
 
     async def update_params(self, ifc_file, category, pset) -> None:
+        """Updates parameters (optimized, but interface preserved)"""
         self.category = category
         self.pset = pset
-        #self.update_view()
 
         if not category or not pset:
             return
 
         log_box = self.app.query_one(LogBox)
+        status_widget = self.app.query_one(StatusWidget)
+
         log_box.log(f"Params Widget: Parameters updating for {self.category} with {self.pset}...")
 
+        # Clear previous data
         self.table.clear(columns=True)
         self.data_storage.clear()
-
         start_time = time.perf_counter()
 
-        def fetch_params():
-            try:
-                elements = ifc_file.by_type(category)
+        try:
+            # Start processing in a background thread
+            params_task = asyncio.create_task(
+                asyncio.to_thread(IFCDataProcessor.extract_parameters, ifc_file, category, pset)
+            )
 
-                if not elements:
-                    log_box.log(f"No elements found for category: {category}")
-                    return [], []
+            # Update timer
+            await self._update_timer_while_processing(params_task, start_time, status_widget, category)
 
-                first_element = elements[0]
-                pset_obj = ifcopenshell.util.element.get_pset(first_element, pset)
+            elapsed_time = time.perf_counter() - start_time
+            param_names, rows = params_task.result()
 
-                if not pset_obj:
-                    log_box.log(f"Property set {pset} not found for {category}")
-                    return [], []
+            if param_names and rows:
+                # Add columns: No, IfcCategory, PredefinedType, IfcElementName, PsetName, ...parameters..., GUID
+                self.table.add_columns("No", "IfcCategory", "PredefinedType", "IfcElementName", "PsetName",
+                                       *param_names, "GUID")
 
-                param_names = list(pset_obj.keys())
-                rows = []
+                for row_data in rows:
+                    self.table.add_row(*row_data)
+                    self.data_storage.append(row_data)
 
-                for index, element in enumerate(elements, start=1):
-                    pset_obj = ifcopenshell.util.element.get_pset(element, pset)
-                    if pset_obj:
-                        ifc_element_name = element.Name or "Unnamed"
-                        row_data = [index, ifc_element_name, pset]
-                        for param in param_names:
-                            value = pset_obj.get(param)
-                            row_data.append("Empty" if value is None or value == "" else str(value))
-                        rows.append(row_data)
-                    else:
-                        log_box.log(f"Property set {pset} not found for element {index}")
-                self.update_view()
-                return param_names, rows
+                log_box.log(f"Params Widget: Added {len(rows)} rows with {len(param_names)} parameters")
+                status_widget.log(f"[+++] Parameters updated for {category} with {pset} in {elapsed_time:.2f} seconds")
+            else:
+                status_widget.log(f"[---] No parameters to update for {category} with {pset}")
 
-            except Exception as e:
-                log_box.log(f"Error fetching parameters: {str(e)}")
-                return [], []
+            # Update visibility after loading data
+            self.update_view()
+            log_box.log(
+                f"Params Widget: Completed update for {self.category} with {self.pset} in {elapsed_time:.2f} seconds")
 
-        # Run the fetch_params function in a background thread
-        params_task = asyncio.create_task(asyncio.to_thread(fetch_params))
+        except Exception as e:
+            log_box.log(f"Error fetching parameters: {str(e)}")
+            status_widget.log(f"[--] Error: {str(e)}")
 
-        # Update the timer while the task is running
-        async def update_timer():
-            while not params_task.done():
-                elapsed_time = time.perf_counter() - start_time
-                self.app.query_one(StatusWidget).log(f"[~~~] Updating parameters for {category}... [{elapsed_time:.1f} sec]")
-                await asyncio.sleep(0.5)
+    async def _update_timer_while_processing(self, task, start_time: float, status_widget, category: str) -> None:
+        """Update timer while processing (moved to a separate method)"""
+        while not task.done():
+            elapsed_time = time.perf_counter() - start_time
+            status_widget.log(f"[~~~] Updating parameters for {category}... [{elapsed_time:.1f} sec]")
+            await asyncio.sleep(0.5)
 
-        await asyncio.gather(params_task, update_timer())
+    def _generate_export_file_path(self, ifc_file_path: str) -> str:
+        """Generates a path for export (moved to a separate method)"""
+        folder_path = os.path.dirname(ifc_file_path)
+        ifc_base_name = os.path.splitext(os.path.basename(ifc_file_path))[0]
 
-        elapsed_time = time.perf_counter() - start_time
-        param_names, rows = params_task.result()
+        # Safe names for the file system
+        category_safe = self.category.replace(" ", "_").replace("/", "_")
+        pset_safe = self.pset.replace(" ", "_").replace("/", "_")
 
-        if param_names and rows:
-            self.table.add_columns("No", "IfcElementName", "PsetName", *param_names)
+        file_name = f"{ifc_base_name}_{category_safe}_{pset_safe}.xlsx"
+        return os.path.join(folder_path, file_name)
 
-            for row_data in rows:
-                self.table.add_row(*row_data)
-                self.data_storage.append(row_data)
+    def _create_excel_table(self, ws, headers: List[str], data_count: int) -> None:
+        """Creates an Excel table with formatting (moved to a separate method)"""
+        table_range = f"A1:{chr(65 + len(headers) - 1)}{data_count + 1}"
+        table = Table(displayName="IFCDataTable", ref=table_range)
 
-            log_box.log(f"Params Widget: Added {len(rows)} rows with {len(param_names)} parameters")
-            self.app.query_one(StatusWidget).log(f"[+++] Parameters updated for {category} with {pset} in {elapsed_time:.2f} seconds")
-        else:
-            self.app.query_one(StatusWidget).log(f"[---] No parameters to update for {category} with {pset}")
-
-        log_box.log(f"Params Widget: Completed update for {self.category} with {self.pset} in {elapsed_time:.2f} seconds")
+        style = TableStyleInfo(
+            name="TableStyleMedium9",
+            showFirstColumn=False,
+            showLastColumn=False,
+            showRowStripes=True,
+            showColumnStripes=False
+        )
+        table.tableStyleInfo = style
+        ws.add_table(table)
 
     def export_to_excel(self, ifc_file_path: str) -> None:
+        """Export to Excel (optimized, interface preserved)"""
         log_box = self.app.query_one(LogBox)
+        status_widget = self.app.query_one(StatusWidget)
 
         if not self.data_storage:
-            log_box.log("[--] No data to export")
-            self.app.query_one(StatusWidget).log("[--] Export failed: No data to export")
+            error_msg = "No data to export"
+            log_box.log(f"[--] {error_msg}")
+            status_widget.log(f"[--] Export failed: {error_msg}")
             return
 
         try:
-            # Create a new workbook and sheet
+            # Creating workbook and worksheet
             wb = Workbook()
             ws = wb.active
             ws.title = "IFC Data Export"
 
-            headers = ["No", "IfcElementName", "PsetName"] + [str(column.label) for column in
-                                                              self.table.columns.values()][3:]
-            log_box.log(f"Headers: {headers}")  # Log the headers for debugging
-            ws.append(headers)
+            # Forming headers for Excel
+            headers = ["No", "IfcCategory", "PredefinedType", "IfcElementName", "PsetName"] + [
+                str(column.label) for column in list(self.table.columns.values())[5:-1]
+                # Parameters (excluding the first 5 and the last one)
+            ] + ["GUID"]
 
+            log_box.log(f"Headers: {headers}")
+
+            # Writing data
+            ws.append(headers)
             for row_data in self.data_storage:
                 ws.append(row_data)
 
-            # Define the range of the table
-            table_range = f"A1:{chr(65 + len(headers) - 1)}{len(self.data_storage) + 1}"  # Adjust for columns and rows
-            table = Table(displayName="IFCDataTable", ref=table_range)
+            # Creating a table with formatting
+            self._create_excel_table(ws, headers, len(self.data_storage))
 
-            style = TableStyleInfo(
-                name="TableStyleMedium9",  # Predefined style
-                showFirstColumn=False,
-                showLastColumn=False,
-                showRowStripes=True,
-                showColumnStripes=False
-            )
-            table.tableStyleInfo = style
-
-            ws.add_table(table)
-
-            # Determine folder for export
-            folder_path = os.path.dirname(ifc_file_path)
-            ifc_base_name = os.path.splitext(os.path.basename(ifc_file_path))[0]
-            category_safe = self.category.replace(" ", "_")
-            pset_safe = self.pset.replace(" ", "_")
-            file_name = f"{ifc_base_name}_{category_safe}_{pset_safe}.xlsx"
-            file_path = os.path.join(folder_path, file_name)
-
+            # Saving the file
+            file_path = self._generate_export_file_path(ifc_file_path)
             wb.save(file_path)
 
             log_box.log(f"Data exported successfully to {file_path}")
-            self.app.query_one(StatusWidget).log(f"[+++] Data exported successfully to {file_path}")
+            status_widget.log(f"[+++] Data exported successfully to {file_path}")
 
         except Exception as e:
-            log_box.log(f"Error exporting data: {str(e)}")
-            self.app.query_one(StatusWidget).log(f"[--] Error exporting data: {str(e)}")
+            error_msg = f"Error exporting data: {str(e)}"
+            log_box.log(error_msg)
+            status_widget.log(f"[--] {error_msg}")
+

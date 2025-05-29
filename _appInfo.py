@@ -3,6 +3,8 @@ from textual.app import ComposeResult
 from textual.widgets import Label, Static, Rule, Markdown
 from textual.containers import Grid, Horizontal, Vertical, Container
 
+from __version__ import __version__
+
 
 class InfoModal(ModalScreen):
     """A modal screen to display app and developer information."""
@@ -19,7 +21,7 @@ class InfoModal(ModalScreen):
     def __init__(self):
         super().__init__()
         self.app_name = "honeycomb"
-        self.version = "v0.7"
+        self.version = f"v.{__version__}"
         self.description = "A sleek and user-friendly tool for exploring and exporting IFC file data — fast and hassle-free."
         self.developer = "IliaShkola"
         self.controls = """

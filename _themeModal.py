@@ -62,7 +62,7 @@ class ThemeSelectorModal(ModalScreen):
             self, event: OptionList.OptionSelected
     ) -> None:
         self.app.theme = event.option.prompt
-        self.config_manager.set_theme(event.option.prompt)
+        # self.config_manager.set_theme(event.option.prompt)
         self.app.pop_screen()
 
     def action_close_modal(self) -> None:
@@ -76,8 +76,10 @@ class ThemeSelectorModal(ModalScreen):
         option_list = self.query_one(OptionList)
         highlighted_index = option_list.highlighted
         if highlighted_index is not None and 0 <= highlighted_index < len(self.THEMES):
+
             selected_theme = self.THEMES[highlighted_index]
             self.app.theme = selected_theme
+            self.config_manager.set_theme(selected_theme)
             self.app.pop_screen()
 
     def action_move_down(self) -> None:
