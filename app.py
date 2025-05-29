@@ -100,19 +100,19 @@ class VerticalLayoutExample(App):
 
                 with Vertical(classes="IfcProperties"):
                     self.category_widget = CategoryWidget()
-                    self.category_widget.border_title = "IfcCategories \[2]"
+                    self.category_widget.border_title = r"IfcCategories \[2]"
                     self.category_widget.can_focus = True
                     #self.category_widget.border_subtitle = "c - Expand"
                     yield self.category_widget
 
                     self.pset_widget = PsetWidget()
-                    self.pset_widget.border_title = "IfcPsets \[3]"
+                    self.pset_widget.border_title = r"IfcPsets \[3]"
                     self.pset_widget.can_focus = True
                     yield self.pset_widget
 
                 self.params_widget = ParamsWidget()
-                self.params_widget.border_title = "IfcProperties \[4]"
-                self.params_widget.border_subtitle = "\[p] - Expand, \[e] - Export in xlsx"
+                self.params_widget.border_title = r"IfcProperties \[4]"
+                self.params_widget.border_subtitle = r"\[p] - Expand, \[e] - Export in xlsx"
                 self.params_widget.can_focus = True
                 yield self.params_widget
             

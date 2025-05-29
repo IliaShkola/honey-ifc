@@ -1,0 +1,8 @@
+*.ifc
+*.xlsx
+venv/
+myenv/
+__pycache__/
+build/
+dist/
+ifc_cache/

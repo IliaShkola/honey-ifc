@@ -10,4 +10,4 @@ class FooterBox(Widget):
     ]
 
     def compose(self) -> ComposeResult:
-        yield Static("\[q] - Exit. \[i] - App Info. \[t] - Select theme")
+        yield Static(r"\[q] - Exit. \[i] - App Info. \[t] - Select theme")
