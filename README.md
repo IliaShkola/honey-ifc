@@ -1,4 +1,4 @@
-# HoneyIfc
+# HoneyIFC
 <p align="center">
    <img src="https://github.com/user-attachments/assets/a8c230f6-0759-4179-b6f1-a434ffe030ed" width="20%" alt="bee">
 </p>
@@ -8,7 +8,7 @@
    <img src="https://github.com/user-attachments/assets/37e152f6-6e28-4a04-8dd4-48675b2a4283" width="30%" alt="scr3">
 </p>
 
-**Honey** is a lightweight desktop application designed for analyzing and exporting data from IFC (Industry Foundation Classes) files. It offers a faster, easier, and more visually appealing way to explore and interact with the data hidden inside complex IFC models.
+**HoneyIFC** is a lightweight desktop application designed for analyzing and exporting data from IFC (Industry Foundation Classes) files. It offers a faster, easier, and more visually appealing way to explore and interact with the data hidden inside complex IFC models.
 
 Whether you're an engineer, architect, or just a curious mind, Honey makes working with IFC files less painful — and a lot more fun.
 
@@ -87,6 +87,11 @@ Contributions are welcome! Please open issues or submit pull requests for improv
 
 ## License
 This project is licensed under the GPL-3.0.
+
+## Trademark
+
+"Honey IFC" and the bee logo are trademarks of Ilia Shkola.  
+You may not use them in forks or derivative works without permission.
 
 ## Author
 
