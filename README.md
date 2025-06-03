@@ -39,7 +39,7 @@ Dealing with IFC files can be tedious — Honey aims to change that. It’s a fu
 1. Clone the repository:
    ```sh
    git clone https://github.com/IliaShkola/honey-ifc.git
-   cd honey
+   cd honey-ifc
    ```
 2. Install dependencies:
    ```sh
