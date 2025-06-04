@@ -107,11 +107,28 @@ class PsetWidget(Widget):
 
                 psets = set()
                 for element in elements:
-                    element_psets = ifcopenshell.util.element.get_psets(element)
-                    psets.update(element_psets.keys())
-                    log_box.log(f"PsetWidget: Element {element.id()} has Psets: {list(element_psets.keys())}")
-                self.update_view()
-                return sorted(psets)
+                #     element_psets = ifcopenshell.util.element.get_psets(element)
+                #     psets.update(element_psets.keys())
+                #     log_box.log(f"PsetWidget: Element {element.id()} has Psets: {list(element_psets.keys())}")
+                # self.update_view()
+                # return sorted(psets)
+
+                    for rel in getattr(element, 'IsDefinedBy', []):
+                        if rel.is_a('IfcRelDefinesByProperties'):
+                            property_definition = rel.RelatingPropertyDefinition
+                            if (property_definition.is_a('IfcPropertySet') or
+                                    property_definition.is_a('IfcElementQuantity')):
+                                pset_name = property_definition.Name
+                                if pset_name:
+                                    psets.add(pset_name)
+                                    pset_type = "IfcElementQuantity" if property_definition.is_a(
+                                        'IfcElementQuantity') else "IfcPropertySet"
+                                    log_box.log(f"PsetWidget: Element {element.id()} has {pset_type}: {pset_name}")
+
+                    self.update_view()
+                    return sorted(psets)
+                return None
+
             except Exception as e:
                 error_message = f"PsetWidget: Error fetching Psets: {str(e)}"
                 log_box.log(error_message)
