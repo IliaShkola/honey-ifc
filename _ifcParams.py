@@ -15,12 +15,110 @@ from _logbox import LogBox
 from _statusBar import StatusWidget
 
 
+class ExtractParametersHelper:
+    """Helper class for robust parameter extraction"""
+
+    @staticmethod
+    def _get_element_pset_robust(element, pset_name, ifc_file):
+        """Robust property set retrieval with multiple fallback methods"""
+
+        # Method 1: Standard approach via ifcopenshell.util.element
+        try:
+            pset_data = ifcopenshell.util.element.get_pset(element, pset_name)
+            if pset_data:
+                return pset_data
+        except Exception as e:
+            print(f"Method 1 failed for element {element.id()}: {e}")
+
+        # Method 2: Direct search through element relationships
+        try:
+            if hasattr(element, 'IsDefinedBy') and element.IsDefinedBy:
+                for rel in element.IsDefinedBy:
+                    if rel.is_a('IfcRelDefinesByProperties'):
+                        prop_def = rel.RelatingPropertyDefinition
+                        if (prop_def.is_a('IfcPropertySet') or prop_def.is_a('IfcElementQuantity')):
+                            if prop_def.Name == pset_name:
+                                return ExtractParametersHelper._extract_properties_from_definition(prop_def)
+        except Exception as e:
+            print(f"Method 2 failed for element {element.id()}: {e}")
+
+        # Method 3: Search through all relationships in file
+        try:
+            for rel in ifc_file.by_type('IfcRelDefinesByProperties'):
+                if element in rel.RelatedObjects:
+                    prop_def = rel.RelatingPropertyDefinition
+                    if (prop_def.is_a('IfcPropertySet') or prop_def.is_a('IfcElementQuantity')):
+                        if prop_def.Name == pset_name:
+                            return ExtractParametersHelper._extract_properties_from_definition(prop_def)
+        except Exception as e:
+            print(f"Method 3 failed for element {element.id()}: {e}")
+
+        # Method 4: Alternative search via get_psets and filtering
+        try:
+            all_psets = ifcopenshell.util.element.get_psets(element)
+            if pset_name in all_psets:
+                pset_data = all_psets[pset_name]
+                if isinstance(pset_data, dict):
+                    return pset_data
+        except Exception as e:
+            print(f"Method 4 failed for element {element.id()}: {e}")
+
+        return {}
+
+    @staticmethod
+    def _extract_properties_from_definition(prop_def):
+        """Property extraction from IfcPropertySet or IfcElementQuantity"""
+        properties = {}
+
+        try:
+            if prop_def.is_a('IfcPropertySet'):
+                for prop in prop_def.HasProperties:
+                    if prop.is_a('IfcPropertySingleValue'):
+                        name = prop.Name
+                        value = prop.NominalValue.wrappedValue if prop.NominalValue else None
+                        properties[name] = value
+                    elif prop.is_a('IfcPropertyEnumeratedValue'):
+                        name = prop.Name
+                        values = [v.wrappedValue for v in prop.EnumerationValues] if prop.EnumerationValues else []
+                        properties[name] = ', '.join(map(str, values)) if values else None
+                    # Add other property types as needed
+
+            elif prop_def.is_a('IfcElementQuantity'):
+                for quantity in prop_def.Quantities:
+                    name = quantity.Name
+                    if hasattr(quantity, 'LengthValue'):
+                        properties[name] = quantity.LengthValue
+                    elif hasattr(quantity, 'AreaValue'):
+                        properties[name] = quantity.AreaValue
+                    elif hasattr(quantity, 'VolumeValue'):
+                        properties[name] = quantity.VolumeValue
+                    elif hasattr(quantity, 'CountValue'):
+                        properties[name] = quantity.CountValue
+                    elif hasattr(quantity, 'WeightValue'):
+                        properties[name] = quantity.WeightValue
+                    elif hasattr(quantity, 'TimeValue'):
+                        properties[name] = quantity.TimeValue
+
+        except Exception as e:
+            print(f"Error extracting properties from {prop_def.Name}: {e}")
+
+        return properties
+
+    @staticmethod
+    def _safe_get_attribute(element, attribute_name, default_value="Empty"):
+        """Safe retrieval of element attribute"""
+        try:
+            value = getattr(element, attribute_name, None)
+            return value if value is not None else default_value
+        except Exception:
+            return default_value
+
 class IFCDataProcessor:
     """Helper class for processing IFC data"""
 
     @staticmethod
     def extract_parameters(ifc_file, category: str, pset: str) -> Tuple[List[str], List[List]]:
-        """Extracts parameters from an IFC file with a full analysis of all unique parameters"""
+        """Extracts parameters from an IFC file with robust fallback methods for PyInstaller"""
         try:
             elements = ifc_file.by_type(category)
 
@@ -32,7 +130,8 @@ class IFCDataProcessor:
             elements_with_psets = []
 
             for element in elements:
-                element_pset = ifcopenshell.util.element.get_pset(element, pset)
+                element_pset = ExtractParametersHelper._get_element_pset_robust(element, pset, ifc_file)
+
                 if element_pset:
                     # Add all found parameters to the general set
                     all_param_names.update(element_pset.keys())
@@ -50,25 +149,32 @@ class IFCDataProcessor:
 
             # Step 2: Fill in data for all elements with all found parameters
             for index, (element, element_pset) in enumerate(elements_with_psets, start=1):
-                element_name = element.Name or "Unnamed"
+                try:
+                    element_name = ExtractParametersHelper._safe_get_attribute(element, 'Name', "Unnamed")
+                    ifc_category = element.is_a()  # Type of IFC element
+                    predefined_type = ExtractParametersHelper._safe_get_attribute(element, 'PredefinedType', "Empty")
+                    element_guid = ExtractParametersHelper._safe_get_attribute(element, 'GlobalId', "Empty")
 
-                # Get additional information about the element
-                ifc_category = element.is_a()  # Type of IFC element
-                predefined_type = getattr(element, 'PredefinedType', None) or "Empty"
-                element_guid = getattr(element, 'GlobalId', None) or "Empty"
+                    # Form the row: No, IfcCategory, PredefinedType, IfcElementName, PsetName, ...parameters..., GUID
+                    row_data = [index, ifc_category, predefined_type, element_name, pset]
 
-                # Form the row: No, IfcCategory, PredefinedType, IfcElementName, PsetName, ...parameters..., GUID
-                row_data = [index, ifc_category, predefined_type, element_name, pset]
+                    # For each unique parameter, check its presence in the current element
+                    for param in param_names:
+                        value = element_pset.get(param) if element_pset else None
+                        formatted_value = "Empty" if value in (None, "") else str(value)
+                        row_data.append(formatted_value)
 
-                # For each unique parameter, check its presence in the current element
-                for param in param_names:
-                    value = element_pset.get(param) if element_pset else None
-                    formatted_value = "Empty" if value in (None, "") else str(value)
-                    row_data.append(formatted_value)
+                    # Add GUID at the end
+                    row_data.append(element_guid)
+                    rows.append(row_data)
 
-                # Add GUID at the end
-                row_data.append(element_guid)
-                rows.append(row_data)
+                except Exception as row_error:
+
+                    error_row = [index, "ERROR", "ERROR", f"Error: {str(row_error)}", pset]
+                    for _ in param_names:
+                        error_row.append("ERROR")
+                    error_row.append("ERROR")
+                    rows.append(error_row)
 
             return param_names, rows
 

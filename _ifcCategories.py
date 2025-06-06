@@ -92,7 +92,7 @@ class CategoryWidget(Widget):
 
         try:
             log_box.log("Processing IFC file for categories")
-            products = ifc_file.by_type("IfcProduct")
+            products = ifc_file.by_type("IfcElement")
             categories = {}
 
             for product in products:
