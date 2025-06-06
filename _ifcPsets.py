@@ -104,14 +104,39 @@ class PsetWidget(Widget):
             try:
                 elements = ifc_file.by_type(category)
                 log_box.log(f"PsetWidget: Found {len(elements)} elements of type {category}")
-
                 psets = set()
+
                 for element in elements:
-                    element_psets = ifcopenshell.util.element.get_psets(element)
+                    # Property Sets
+                    element_psets = ifcopenshell.util.element.get_psets(element, psets_only=True)
                     psets.update(element_psets.keys())
-                    log_box.log(f"PsetWidget: Element {element.id()} has Psets: {list(element_psets.keys())}")
+
+                    # Quantity Sets
+                    element_qtos = ifcopenshell.util.element.get_psets(element, qtos_only=True)
+                    psets.update(element_qtos.keys())
+
+                    all_element_sets = list(element_psets.keys()) + list(element_qtos.keys())
+                    log_box.log(f"PsetWidget: Element {element.id()} has Psets/QSets: {all_element_sets}")
+
                 self.update_view()
                 return sorted(psets)
+
+                #     for rel in getattr(element, 'IsDefinedBy', []):
+                #         if rel.is_a('IfcRelDefinesByProperties'):
+                #             property_definition = rel.RelatingPropertyDefinition
+                #             if (property_definition.is_a('IfcPropertySet') or
+                #                     property_definition.is_a('IfcElementQuantity')):
+                #                 pset_name = property_definition.Name
+                #                 if pset_name:
+                #                     psets.add(pset_name)
+                #                     pset_type = "IfcElementQuantity" if property_definition.is_a(
+                #                         'IfcElementQuantity') else "IfcPropertySet"
+                #                     log_box.log(f"PsetWidget: Element {element.id()} has {pset_type}: {pset_name}")
+                #
+                #     self.update_view()
+                #     return sorted(psets)
+                # return None
+
             except Exception as e:
                 error_message = f"PsetWidget: Error fetching Psets: {str(e)}"
                 log_box.log(error_message)

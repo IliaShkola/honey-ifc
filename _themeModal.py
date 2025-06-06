@@ -62,7 +62,7 @@ class ThemeSelectorModal(ModalScreen):
             self, event: OptionList.OptionSelected
     ) -> None:
         self.app.theme = event.option.prompt
-        # self.config_manager.set_theme(event.option.prompt)
+        self.config_manager.set_theme(event.option.prompt)
         self.app.pop_screen()
 
     def action_close_modal(self) -> None:
