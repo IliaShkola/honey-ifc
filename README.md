@@ -125,6 +125,27 @@ Set the value to (adjust the path as needed):
 `"%V"` tells Windows to launch HoneyIFC **inside the folder you clicked**, passing it as the working directory.
 
 ---
+## ⚙️ Alternative: Use Ready-Made Scripts
+
+If you don't want to edit the registry manually, you can use the pre-made scripts included in the release.
+
+### ▶️ To install context menu entry:
+1. Make sure `HoneyIFC.exe` is located in a fixed folder (e.g., `C:\Tools\HoneyIFC\`)
+2. Open the folder containing:
+- `add_to_context.reg`
+- `install_context.bat`
+3. **Double-click `install_context.bat`**
+- This script automatically adds HoneyIFC to the Windows context menu
+
+### 🧼 To remove the context menu entry:
+1. Run `remove_context.bat`
+- This script removes HoneyIFC from the right-click menu
+- Alternatively, delete the following registry key manually:
+  ```
+  HKEY_CLASSES_ROOT\Directory\Background\shell\HoneyIFC
+  ```
+
+---
 
 ## ✅ Done!
 
@@ -137,11 +158,25 @@ HoneyIFC will launch and show all `.ifc` models from that folder — ready to ex
 
 ---
 
+## 🔁 Updating HoneyIFC
+
+When a new version of HoneyIFC is released, **you don’t need to reinstall or reconfigure anything**.
+
+If you already added HoneyIFC to the context menu:
+
+1. Download the new `HoneyIFC.exe` from the release
+2. Replace the old executable at: `C:\Tools\HoneyIFC\HoneyIFC.exe`
+or whichever path you used in the registry
+3. That’s it! The right-click integration will keep working as expected
+
+✅ No need to run the `.bat` or `.reg` scripts again — just overwrite the old version
+
+
 ## 📝 Notes
 
 - If you ever move `HoneyIFC.exe` to another location, you’ll need to update the registry path manually
 - For per-user setup (no admin rights required), you can use:
-HKEY_CURRENT_USER\Software\Classes\Directory\Background\shell
+`HKEY_CURRENT_USER\Software\Classes\Directory\Background\shell`
 instead of `HKEY_CLASSES_ROOT`
 
 
