@@ -12,30 +12,30 @@
 
 Whether you're an engineer, architect, or just a curious mind, Honey makes working with IFC files less painful — and a lot more fun.
 
-## Why Honey?
+# Why Honey?
 
 Dealing with IFC files can be tedious — Honey aims to change that. It’s a fun side project built to bring a little joy (and a lot of usability) to the otherwise dry world of BIM data.
 
-## Features
+# Features
 
 - Intuitive and fast browsing of IFC data (supports IFC 2x3 and IFC 4)  
 - Export functionality for structured data (currently to XLSX format)  
 - Stylish and user-friendly interface  
 - Designed to make BIM work feel less like work
 
-## Tech Stack
+# Tech Stack
 
 - Python  
 - Textual (TUI Framework)  
 - IfcOpenShell
 
-## Getting Started
+# Getting Started
 
-### Prerequisites
+## Prerequisites
 - Python 3.11 or higher
 - Recommended: Create and activate a virtual environment
 
-### Installation
+## Installation
 1. Clone the repository:
    ```sh
    git clone https://github.com/IliaShkola/honey-ifc.git
@@ -56,7 +56,7 @@ Dealing with IFC files can be tedious — Honey aims to change that. It’s a fu
    ```
    This will generate a standalone executable in the `dist/` directory.
 
-### Configuration File
+## Configuration File
 When launched, Honey automatically creates a configuration folder to store user preferences and settings. The location of this folder depends on your operating system:
 
 - Windows:
@@ -69,15 +69,83 @@ When launched, Honey automatically creates a configuration folder to store user 
 This is done to persist your interface theme.
 No personal or sensitive data is collected or transmitted.
 
-## Running the Application
-Run the Honey executable from the folder with IFC files to analyze.
+# 🐝 How to Run HoneyIFC Properly
 
-### Running the application from the folder context menu
-You can run the application directly from the folder containing your IFC files. This allows you to easily access and analyze your IFC data without needing to specify paths.
-To do this, you need to add the folder containing your IFC files to the system PATH. This can be done by modifying the environment variables on your operating system.
+## Basic Usage
+
+To export data from IFC files, **you must launch HoneyIFC from the same folder where your `.ifc` files are located**.  
+HoneyIFC scans the current working directory and lists all available IFC models automatically.
+
+This works well when launching `HoneyIFC.exe` manually from a terminal or file explorer, but constantly navigating to the folder and running the executable can be inconvenient.
+
+---
+
+## Make It Easier: Add HoneyIFC to the Right-Click Menu
+
+To simplify launching HoneyIFC, you can add it to the **Windows right-click context menu**.  
+This allows you to right-click **inside any folder** and open it directly in HoneyIFC — no need to move or copy `.ifc` files elsewhere.
+
+---
+
+## Manual Setup (No Scripts Required)
+
+Follow these steps to add **“Open with HoneyIFC”** to your Windows right-click menu using the Registry Editor:
+
+### Step-by-Step Guide
+
+1. **Press** `Win + R`, type `regedit`, and press **Enter**  
+   → This opens the **Registry Editor**
+
+2. Navigate to the following path:
+`HKEY_CLASSES_ROOT\Directory\Background\shell`
 
 
-## Project Structure
+3. **Right-click** on `shell` → **New → Key**  
+Name the new key:
+`HoneyIFC`
+
+
+4. Select the `HoneyIFC` key  
+On the right side, **double-click** the default `"(Default)"` value  
+Set the value data to:
+`Open with HoneyIFC`
+
+
+5. Now **right-click `HoneyIFC` → New → Key**  
+Name it:
+`command`
+
+
+6. Select the `command` key  
+On the right side, **double-click** the default `"(Default)"` value  
+Set the value to (adjust the path as needed):
+`"C:\Tools\HoneyIFC\HoneyIFC.exe" "%V"`
+
+
+`"%V"` tells Windows to launch HoneyIFC **inside the folder you clicked**, passing it as the working directory.
+
+---
+
+## ✅ Done!
+
+Now you can:
+- Open any folder containing `.ifc` files
+- Right-click on **empty space inside the folder**
+- Choose **“Open with HoneyIFC”**
+
+HoneyIFC will launch and show all `.ifc` models from that folder — ready to explore and export.
+
+---
+
+## 📝 Notes
+
+- If you ever move `HoneyIFC.exe` to another location, you’ll need to update the registry path manually
+- For per-user setup (no admin rights required), you can use:
+HKEY_CURRENT_USER\Software\Classes\Directory\Background\shell
+instead of `HKEY_CLASSES_ROOT`
+
+
+# Project Structure
 - `app.py` - Main application entry point
 - `config_manager.py` - Configuration and settings management
 - `honeyThemes.py` - Theme definitions
@@ -85,18 +153,18 @@ To do this, you need to add the folder containing your IFC files to the system P
 - `static/` - Static assets (icons, etc.)
 - `styles/` - Theme and style files
 
-## Contributing
+# Contributing
 Contributions are welcome! Please open issues or submit pull requests for improvements and bug fixes.
 
-## License
+# License
 This project is licensed under the GPL-3.0.
 
-## Trademark
+# Trademark
 
 "Honey IFC" and the bee logo are trademarks of Ilia Shkola.  
 You may not use them in forks or derivative works without permission.
 
-## Author
+# Author
 
 Made with ❤️ by [Ilia Shkola]
 
