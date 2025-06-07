@@ -37,7 +37,7 @@ class VerticalLayoutExample(App):
             return Path(sys._MEIPASS) / relative_path
         return Path(relative_path)
 
-    CSS_PATH = str(resource_path("styles/nightbee.tcss"))
+    CSS_PATH = str(resource_path("styles/styles.tcss"))
     THEME = "nightbee"
     BINDINGS = [
         Binding("p", "toggle_fullscreen", "Toggle Parameters Fullscreen"),

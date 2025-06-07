@@ -5,7 +5,7 @@ a = Analysis(
     ['app.py'],
     pathex=[],
     binaries=[],
-    datas=[('./styles/nightbee.tcss', 'styles')],
+    datas=[('./styles/styles.tcss', 'styles')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},

@@ -39,14 +39,17 @@ Dealing with IFC files can be tedious — Honey aims to change that. It’s a fu
 1. Clone the repository:
    ```sh
    git clone https://github.com/IliaShkola/honey-ifc.git
+   ```
+2. Move to the `honey-ifc` directory:
+   ```sh
    cd honey-ifc
    ```
-2. Install dependencies:
+3. Install dependencies:
    ```sh
    pip install -r requirements.txt
    ```
    
-3. Create an executable:
+4. Create an executable:
    If you want to create an executable for the application, you can use PyInstaller:
    ```sh
    pyinstaller app.spec
