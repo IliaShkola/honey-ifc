@@ -86,6 +86,36 @@ To simplify launching HoneyIFC, you can add it to the **Windows right-click cont
 This allows you to right-click **inside any folder** and open it directly in HoneyIFC — no need to move or copy `.ifc` files elsewhere.
 
 ---
+## Use Ready-Made Scripts
+
+If you don't want to edit the registry manually, you can use the pre-made scripts included in the release.
+
+### Files Required
+
+Make sure the following **three files are placed together in the same folder**:
+- `HoneyIFC.exe`
+- `install_context.bat`
+- `remove_context.bat`
+
+The folder where these files are located will be written to the Windows Registry — so HoneyIFC can later be launched from the right-click menu in that exact path.
+
+The `install_context.bat` script will **automatically detect the folder it is located in** and correctly set the path to `HoneyIFC.exe` when registering the menu entry.
+
+---
+
+### To install the context menu entry:
+
+1. Ensure `HoneyIFC.exe`, `install_context.bat`, and `remove_context.bat` are in the same folder  
+   (e.g., `C:\Tools\HoneyIFC\`)
+
+2. **Double-click `install_context.bat`**
+
+   - This script will automatically:
+     - detect its location
+     - find `HoneyIFC.exe` in the same folder
+     - write the correct path to the Windows context menu
+
+---
 
 ## Manual Setup (No Scripts Required)
 
@@ -124,26 +154,15 @@ Set the value to (adjust the path as needed):
 
 `"%V"` tells Windows to launch HoneyIFC **inside the folder you clicked**, passing it as the working directory.
 
----
-## ⚙️ Alternative: Use Ready-Made Scripts
 
-If you don't want to edit the registry manually, you can use the pre-made scripts included in the release.
+## To remove the context menu entry:
 
-### ▶️ To install context menu entry:
-1. Make sure `HoneyIFC.exe` is located in a fixed folder (e.g., `C:\Tools\HoneyIFC\`)
-2. Open the folder containing:
-- `add_to_context.reg`
-- `install_context.bat`
-3. **Double-click `install_context.bat`**
-- This script automatically adds HoneyIFC to the Windows context menu
+1. **Double-click `remove_context.bat`**
 
-### 🧼 To remove the context menu entry:
-1. Run `remove_context.bat`
-- This script removes HoneyIFC from the right-click menu
-- Alternatively, delete the following registry key manually:
-  ```
-  HKEY_CLASSES_ROOT\Directory\Background\shell\HoneyIFC
-  ```
+   - This script removes HoneyIFC from the right-click menu
+
+2. Alternatively, you can delete the registry key manually:
+`HKEY_CURRENT_USER\Software\Classes\Directory\Background\shell\HoneyIFC`
 
 ---
 
@@ -158,7 +177,7 @@ HoneyIFC will launch and show all `.ifc` models from that folder — ready to ex
 
 ---
 
-## 🔁 Updating HoneyIFC
+## Updating HoneyIFC
 
 When a new version of HoneyIFC is released, **you don’t need to reinstall or reconfigure anything**.
 
@@ -172,7 +191,7 @@ or whichever path you used in the registry
 ✅ No need to run the `.bat` or `.reg` scripts again — just overwrite the old version
 
 
-## 📝 Notes
+## Notes
 
 - If you ever move `HoneyIFC.exe` to another location, you’ll need to update the registry path manually
 - For per-user setup (no admin rights required), you can use:
