@@ -201,11 +201,13 @@ instead of `HKEY_CLASSES_ROOT`
 
 # Project Structure
 - `app.py` - Main application entry point
+- `app.spec` - PyInstaller spec file for building the executable
 - `config_manager.py` - Configuration and settings management
 - `honeyThemes.py` - Theme definitions
-- `*_mod*.py` - Modules for handling IFC data
+- `widgets/` - Widgets and custom components for the UI
 - `static/` - Static assets (icons, etc.)
 - `styles/` - Theme and style files
+- `Install2Context` - Scripts for adding/removing HoneyIFC from the Windows context menu
 
 # Contributing
 Contributions are welcome! Please open issues or submit pull requests for improvements and bug fixes.
