@@ -1,27 +1,31 @@
 from textual.app import App, ComposeResult
 from textual.containers import Horizontal, Vertical
 from textual.binding import Binding
-from _fileBrowser import BrowserWidget
-from _ifcCategories import CategoryWidget
-from _ifcPsets import PsetWidget
-from _appname import AppNameWidget
-from _systemInfo import SystemInfoWidget
-from _ifcParams import ParamsWidget
-from _logbox import LogBox
-from _ifcInfo import IfcInfoWidget
-from _footer import FooterBox
-from _statusBar import StatusWidget
-from _ifcStatus import IfcStatus
-from _appInfo import InfoModal
+
+from widgets._fileBrowser import BrowserWidget
+from widgets._ifcCategories import CategoryWidget
+from widgets._ifcPsets import PsetWidget
+from widgets._appname import AppNameWidget
+from widgets._systemInfo import SystemInfoWidget
+from widgets._ifcParams import ParamsWidget
+from widgets._logbox import LogBox
+from widgets._ifcInfo import IfcInfoWidget
+from widgets._footer import FooterBox
+from widgets._statusBar import StatusWidget
+from widgets._ifcStatus import IfcStatus
+from widgets._appInfo import InfoModal
+from widgets._themeModal import ThemeSelectorModal
+
 import ifcopenshell
 import asyncio
 import time
 from datetime import datetime
-import sys
 from pathlib import Path
 from honeyThemes import nightbee, choosenbee, barbee, farbee, daybee, beethoven, cyberhive
-from _themeModal import ThemeSelectorModal
+
 from config_manager import ConfigManager
+import os
+import sys
 
 
 class VerticalLayoutExample(App):
@@ -33,7 +37,7 @@ class VerticalLayoutExample(App):
             return Path(sys._MEIPASS) / relative_path
         return Path(relative_path)
 
-    CSS_PATH = str(resource_path("styles/nightbee.tcss"))
+    CSS_PATH = str(resource_path("styles/styles.tcss"))
     THEME = "nightbee"
     BINDINGS = [
         Binding("p", "toggle_fullscreen", "Toggle Parameters Fullscreen"),
@@ -277,5 +281,10 @@ class VerticalLayoutExample(App):
 
 
 if __name__ == "__main__":
+    if len(sys.argv) > 1:
+        folder = sys.argv[1]
+        if os.path.isdir(folder):
+            os.chdir(folder)
+
     app = VerticalLayoutExample()
     app.run()
